@@ -1,95 +1,224 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-	<head>
-		<title>Plain Text Paste for Firefox</title>
-		<style>
-			body {
-				padding: 1em 2em;
-			}
-			#title, #text {
-				clear: both;
-				color: green;
-				outline: 1px dotted blue;
-			}
-			#info {
-				-moz-box-sizing: border-box;
-				width: 35%;
-				float: right;
-				padding: 0 1em;
-				background-color: lightgreen;
-				-moz-border-radius: 10px;
-				-moz-box-shadow: black .5em .5em 1em;
-			}
-		</style>
-	</head>
-	<body>
-
-		<div style="-moz-box-sizing: border-box; width: 55%; float: left; padding-right: 1em">
-			<h1>Plain Text Paste <span style="font-size: .5em">for</span> Firefox</h1>
-
-			<p>
-				This paragraph <strong>contains</strong> both markup and
-				<script>var redirect = function(){ window.location = "http://www.google.com/"; }</script>
-				Javascript in the <strong>middle</strong> of itself.
-			</p>
-			<p>
-				This is another paragraph. Try copying some or all of the text in the paragraph above, and even including the title and/or this paragraph, and behold forced plain text pasting magic when pasting it into the editable areas below.
-			</p>
-
-			<h1 id="title" contenteditable="true">Editable Title (h1)</h1>
-
-			<p id="text" contenteditable="true">Editable paragraph (p).</p>
-		</div>
-
-		<div id="info">
-			<h2>Info</h2>
-			<p>Made for (and only tested on) Firefox 3.5.</p>
-			<p>When pasting, a dialog with a nasty warning appears, which has to be accepted in order to continue the paste operation. This is because I just couldn't find any other way to do this...</p>
-			<p>I have heard rumors that Firefox 3.6 might include enhancements that would allow access to the clipboard, <strong>only</strong> for and during the onpaste event, and thereby take care of the need for the nasty security dialog for paste operations like this. I still think the way it works now is acceptable since this kind of editing would mostly be done by admins that trust the web site. (I hope.). But yes, I allready know it doesn't work online... Damn... and damn.</p>
-			<p>Also, I think this technique is possible to replicate for Webkit, which I believe already has refined this operation to only allow access to the clipboard <strong>when</strong> actual pasting is going on. But Webkit doesn't execute Javascript in paste content so it's actually easy to do this in alternative ways for Webkit (display inline for all tags etc.). I'll test this approach on Webkit later though, since it's better, if it works.</p>
-			<p>If someone knows or figures out how to do this in a much better way, in a way that works online as well, please give feedback.</p>
-		</div>
-
-		<script>
-
-		// Paste plain text
-		var pastePlainText = function(event){
-
-			netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
-
-			this.clipboardId = Components.interfaces.nsIClipboard;
-			this.clipboard = Components.classes['@mozilla.org/widget/clipboard;1'].getService(this.clipboardId);
-
-			var transfer = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable);
-			transfer.addDataFlavor('text/unicode');
-
-			this.clipboard.getData(transfer, this.clipboardId.kGlobalClipboard);
-
-			var str = {};
-			var strLength = {};
-			transfer.getTransferData('text/unicode', str, strLength);
-
-			str = str.value.QueryInterface(Components.interfaces.nsISupportsString);
-			str.data = str.data.substring(0, strLength.value / 2).replace(/\n/g, " ");
-
-			transfer.setTransferData("text/unicode", str, str.data.length * 2);
-			this.clipboard.setData(transfer, null, this.clipboard.kGlobalClipboard);
-		}
-		
-		// Prevent enter
-		var preventEnter = function(e){
-			if (e.keyCode == 13) e.preventDefault();
-		}
-
-		// Add listener for paste, to force plain text.
-		document.getElementById('title').addEventListener('paste', pastePlainText, false);
-		document.getElementById('text').addEventListener('paste', pastePlainText, false);
-
-		// Add listener for keypress, to prevent enter.
-		document.getElementById('title').addEventListener('keypress', preventEnter, false);
-		document.getElementById('text').addEventListener('keypress', preventEnter, false);
-
-		</script>
-
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta name="description" content="Ongame - Cadastro" />
+        <meta name="keywords" content="Ongame - Cadastro" />
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <link rel="stylesheet" type="text/css" href="http://cadastro.ongame.com.br/css/global.css" />
+        <link rel="stylesheet" type="text/css" href="http://cadastro.ongame.com.br/css/style.css" />
+        <link rel="stylesheet" type="text/css" href="http://cadastro.ongame.com.br/css/cadastro.css" />
+        <link rel="stylesheet" type="text/css" href="http://cadastro.ongame.com.br/css/jquery.validate.password.css" />
+        <title>Ongame - Cadastro</title>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/jquery.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/jquery.mask.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/jquery.validate.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/messages_ptbr.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/additional-methods.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/jquery.validate.password.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/jquery-ui.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/ui.datepicker-pt-BR.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/util.js"></script>
+        <script type="text/javascript" src="http://cadastro.ongame.com.br/js/cadastro_edita.js"></script>
+                <script type="text/javascript" src="http://www.ongame.com.br/barra/?j="></script><style type="text/css">
+.titulo_lembrete{
+    border: 0px solid red;
+    font:25px/1.2 Tahoma;
+    width: 425px;
+    height:30px;
+    position: absolute;
+    color:#E76B21;
+    top: 8px;
+    left: 50px;
+}
+</style>
+    </head>
+    <body>
+        <div id="capa">
+            <div id="conteudo">
+                <h1>
+                <span class="titulo_lembrete">            Cadastro</span>
+                </h1>
+   
+                <form id="cadastro" action="http://cadastro.ongame.com.br/editar_dados_pr.php" method="post">
+                    <fieldset>
+                        <div class="etapas" id="etapa2">
+                            <p class="aviso">
+                                                                Altere seus dados para os verdadeiros, pois a mudança pode ser feita <b>APENAS UMA VEZ</b>, portanto preste atenção e preencha os dados corretamente, eles serão requisitados em funções importantes como o Suporte, a Loja e Recuperação. E trarão muito mais proteção e segurança para sua conta.
+                                                                <br /><br />
+                            </p>
+                            <input type="hidden" name="id_usuario" id="id_usuario" value="madaraa7x" />
+                            <label class="grande">
+                                <strong>* Nome:</strong>
+                                <input type="text" name="nome" id="nome" value="gustavo" />
+                            </label>
+                            <label class="grande">
+                                <strong>* Sobrenome:</strong>
+                                <input type="text" name="sobrenome" id="sobrenome" value="silva" />
+                            </label>
+                            <label class="medio">
+                                <strong>* RG:</strong>
+                                <input type="text" name="rg" id="rg" value="123456789"  maxlength="11"/>
+                            </label>
+                            <label class="medio">
+                                <strong>* CEP:</strong>
+                                <input type="text" name="cep" id="cep" value="31160150" maxlength="8"/>
+                            </label>
+                            <label class="grande">
+                                <strong>* Endereço:</strong>
+                                <input type="text" name="endereco" id="endereco" value="fdsdssad" />
+                            </label>
+                            <label class="medio">
+                                <strong>* Número:</strong>
+                                <input type="text" name="numero" id="numero" value="2252" />
+                            </label>
+                            <label class="grande">
+                                <strong>* Complemento:</strong>
+                                <input type="text" name="complemento" id="complemento" value="sdswfafd" />
+                            </label>
+                            <label class="grande">
+                                <strong>* Bairro:</strong>
+                                <input type="text" name="bairro" id="bairro" value="asdwqbxc" />
+                            </label>
+                            <label class="medio data">
+                                <strong>* Telefone:</strong>
+                                <input type="text" name="telefone1" id="telefone1" value="36699999" />
+                            </label>
+                            <label class="medio data">
+                                <strong>* Celular:</strong>
+                                <input type="text" name="telefone2" id="telefone2" value="3388888888" />
+                            </label>
+                            <div class="bx-conjunto" style="position:relative;">
+                                <strong>* CPF:</strong>
+                                <label class="radio">
+                                                                        <input type="radio" name="tipo_cpf" value="proprio" checked="checked" />
+                                    CPF Próprio
+                                </label>
+                                <label class="radio">
+                                    <input type="radio" name="tipo_cpf" value="responsavel"  />
+                                    CPF do Responsável
+                                </label>
+                                <span class="error" id="aviso_cpf" style="display:none;"></span>
+                                <fieldset id="proprio" class="mostra-esconde" style="clear:both;display:block;">
+                                    <label class="grande">
+                                        <strong>* Nº do documento:</strong>
+                                        <input type="text" name="cpf" id="cpf" value="25732960678"  maxlength="11"/>
+                                    </label>
+                                </fieldset>
+                                <fieldset id="responsavel" class="mostra-esconde" style="clear:both;display:none;">
+                                    <label class="grande">
+                                        <strong>* Nome:</strong>
+                                        <input type="text" name="nome_r" id="nome_r" value="" />
+                                    </label>
+                                    <label class="grande">
+                                        <strong>* Sobrenome:</strong>
+                                        <input type="text" name="sobrenome_r" id="sobrenome_r" value="" />
+                                    </label>
+                                    <label class="grande">
+                                        <strong>* CPF:</strong>
+                                        <input type="text" name="cpf_r" id="cpf_r" value="" maxlength="11" />
+                                    </label>
+                                    <label class="medio data">
+                                        <strong>Telefone:</strong>
+                                        <input type="text" name="telefone3" id="telefone3" value="" />
+                                    </label>
+                                </fieldset>
+                            </div>
+                            <p class="aviso distancia" style="display:inline;">Clicando em “Enviar”, você está indicado que leu e aceita os <br/><a target="_blank" href="http://www.ongame.com.br/termo-de-uso">Termos de Uso</a> da Ongame.</p>
+                            <div class="botoes">
+                                <input id="enviar" type="image" src="http://imagem.ongame.com.br/cadastro/enviar.gif" value="Enviar" />
+                                <input id="voltar" type="image" src="http://imagem.ongame.com.br/cadastro/cancelar.png" value="Voltar" />
+                            </div>
+                        </div>
+                        <input type="hidden" name="editar" value="1" />
+                        <input type="hidden" name="url_voltar" value="" />
+                    </fieldset>
+                </form>
+            </div>
+                        <div id="rodape">
+                <div style="margin-top:70px">
+<div id="rodape_inferior">
+        <div id="imagem"></div>
+</div>
+<div id="rodape">
+        <div id="centro">
+                        <div id="frame_online_games">
+                        <ul class="info_rodape">
+                                        <li><span class="branco">ONLINE</span><span class="laranja">GAMES</span></li>
+                                        <li>&nbsp;</li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://aika.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'AIKA']);">Aika</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://pb.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Point Blank']);">Point Blank</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://hero.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Hero']);">Hero</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://m2.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Metin2']);">Metin2</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://wyd.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'WYD']);">WYD</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://asda2.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Asda 2']);">Asda 2</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://atlantica.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Atlantica']);">Atlantica</a></li>
+                        </ul>
+                        </div>
+                        <div id="frame_web_games">
+                                <ul class="info_rodape">
+                                        <li><span class="branco ">WEB</span><span class="laranja">GAMES</span></li>
+                                        <li>&nbsp;</li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://seafight.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Sea Fight']);">Seafight</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://deepolis.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Deepolis']);">Deepolis</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://farmerama.ongame.com.br" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Farmerama']);">Farmerama</a></li>
+                                        <!--<li class="lista_jogos cinza_escuro"><a href="">Dark Orbit</a></li>
+                                        <li class="lista_jogos cinza_escuro"><a href="">War of Titans</a></li>
+                                        <li class="lista_jogos cinza_escuro"><a href="">Zoomumba</a></li>-->
+                                </ul>
+                       
+                        </div>
+                        <div id="frame_jogos">
+                                <ul class="info_rodape">
+                                        <li><span class="branco">SOBRE</span><span class="laranja"> OS GAMES</span></li>
+                                        <li>&nbsp;</li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/loja/o-que-e-cash.php" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'O que é cash?']);">O que é cash?</a></li>
+                                        <!--<li class="lista_jogos cinza_escuro"><a href="">Eventos</a></li>-->
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/downloads" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Downloads']);">Downloads</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/faq" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'FAQ']);">FAQ</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/loja" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Loja']);">Loja</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/suporte" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Suporte']);">Suporte</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/mapa-do-site" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Mapa do Site']);">Mapa do Site</a></li>
+                                </ul>
+                        </div>
+                        <div id="frame_ongame">
+                                <ul>
+                                        <li><span class="branco">ON</span><span class="laranja">GAME</span></li>
+                                        <li>&nbsp;</li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://corp.ongame.com.br" target="_blank" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Corporativo']);">Corporativo</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/trabalhe-conosco" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Trabalhe Conosco']);">Trabalhe Conosco</a></li>
+                                        <!--<li class="lista_jogos cinza_escuro"><a href="">Lan House</a></li>-->
+                                        <li>&nbsp;</li>
+                                        <li class="segurança"><span class="branco">SEGURANÇA</span></li>
+                                        <li>&nbsp;</li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/pais" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Informação aos Pais']);">Informação aos Pais</a></li>
+                                        <li class="lista_jogos nova_lista_jogos"><a href="http://www.ongame.com.br/termos-de-uso" onclick="_gaq.push(['_trackEvent', 'Rodapé', '', 'Termos de Uso']);">Termos de Uso</a></li>
+                                </ul>  
+                        </div>
+                        <!--<div id="frame_institucional">SENNA - ACELERA RUBINHO</div>-->
+                        <br /><br />
+                        <div id="assinatura_rodape">
+                                <div id="logo"><a href="http://cadastro.ongame.com.br/"><img src="http://imagem.ongame.com.br/cadastro/logo.png" alt="logo rodape"/></a></div>
+                                <div id="texto">COPYRIGHT @ 2004 - 2012 ONGAME ENTRETENIMENTO. TODOS OS DIREITOS RESERVADOS </div>
+                        </div>
+        </div>
+       
+</div>
+</div>
+ 
+<script type="text/javascript" src="http://www.ongame.com.br/js/login.js"></script>
+<script type="text/javascript">
+ 
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-20490095-1']);
+  _gaq.push(['_setDomainName', '.ongame.com.br']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+            </div>
+                    </div>
+    </body>
 </html>
